@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: exam-solver-preprocessor
+
+server:
+  port: 8082
