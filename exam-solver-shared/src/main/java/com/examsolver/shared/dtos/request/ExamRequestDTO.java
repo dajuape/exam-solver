@@ -3,6 +3,7 @@ package com.examsolver.shared.dtos.request;
 import com.examsolver.shared.enums.ExamMode;
 import com.examsolver.shared.enums.FileType;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,4 +23,8 @@ public class ExamRequestDTO {
 
     @NotNull
     private String base64Content;
+
+    @NotNull
+    @Size(min = 1, max = 255)
+    private String fileName;
 }
