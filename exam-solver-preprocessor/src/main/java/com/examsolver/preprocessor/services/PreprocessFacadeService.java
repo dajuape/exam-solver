@@ -1,0 +1,15 @@
+package com.examsolver.preprocessor.services;
+
+import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
+import com.examsolver.shared.dtos.response.PreprocessResponseDTO;
+
+public interface PreprocessFacadeService {
+
+    /**
+     * Runs the complete preprocessing pipeline for the given request.
+     *
+     * @param request DTO with input file and metadata.
+     * @return PreprocessResponseDTO with the processed and cleaned content.
+     */
+    PreprocessResponseDTO process(PreprocessRequestDTO request);
+}

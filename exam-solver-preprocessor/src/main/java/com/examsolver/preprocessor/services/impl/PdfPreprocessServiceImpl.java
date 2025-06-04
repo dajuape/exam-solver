@@ -1,0 +1,42 @@
+package com.examsolver.preprocessor.services.impl;
+
+import com.examsolver.preprocessor.services.PreprocessStrategy;
+import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
+import com.examsolver.shared.dtos.response.PreprocessResponseDTO;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Base64;
+
+@Service
+@AllArgsConstructor
+@Slf4j
+public class PdfPreprocessServiceImpl implements PreprocessStrategy {
+
+    @Override
+    public PreprocessResponseDTO preprocess(PreprocessRequestDTO requestDTO) {
+
+        final byte[] decodedBytes = Base64.getDecoder().decode(requestDTO.getBase64File());
+
+        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(decodedBytes))) {
+
+            final PDFTextStripper pdfStripper = new PDFTextStripper();
+            final String text = pdfStripper.getText(document);
+
+            return PreprocessResponseDTO.builder()
+                    .success(true)
+                    .extractedText(text)
+                    .build();
+
+        } catch (IOException e) {
+            log.error("Error preprocessing a PDF.", e);
+            throw new RuntimeException("Error preprocessing a PDF", e);
+        }
+    }
+
+}
