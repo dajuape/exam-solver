@@ -1,4 +1,4 @@
-package com.examsolver.exam_solver_preprocessor;
+package com.examsolver.preprocessor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
