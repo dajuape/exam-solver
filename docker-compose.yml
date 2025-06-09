@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -13,6 +13,14 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  exam-solver-nougat:
+    build: ./exam-solver-nougat
+    container_name: exam_solver_nougat
+    ports:
+      - "8503:8503"
     networks:
       - backend
 
