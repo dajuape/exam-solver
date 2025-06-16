@@ -17,10 +17,16 @@ services:
       - backend
 
   exam-solver-nougat:
-    build: ./exam-solver-nougat
+    build:
+      context: ./exam-solver-nougat/.
+      dockerfile: Dockerfile
+    image: exam-solver-nougat:latest
     container_name: exam_solver_nougat
+    restart: unless-stopped
     ports:
       - "8503:8503"
+    environment:
+      NO_GPU: "1"
     networks:
       - backend
 
