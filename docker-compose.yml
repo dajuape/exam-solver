@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -13,6 +13,20 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  exam-solver-nougat:
+    build:
+      context: ./exam-solver-nougat/.
+      dockerfile: Dockerfile
+    image: exam-solver-nougat:latest
+    container_name: exam_solver_nougat
+    restart: unless-stopped
+    ports:
+      - "8503:8503"
+    environment:
+      NO_GPU: "1"
     networks:
       - backend
 
