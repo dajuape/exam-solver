@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Base64;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,4 +25,9 @@ public class PreprocessRequestDTO {
     @NotNull
     @Size(min = 1, max = 255)
     private String fileName;
+
+
+    public byte[] getDecodedFileBytes() {
+        return Base64.getDecoder().decode(this.base64File);
+    }
 }
