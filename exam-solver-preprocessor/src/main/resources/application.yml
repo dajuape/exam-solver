@@ -11,3 +11,18 @@ preprocessor:
     en: "=== EXERCISE ==="
     de: "=== AUFGABE ==="
     fr: "=== EXERCICE ==="
+
+
+external:
+  nougat:
+    base-url: http://localhost:8503
+
+resilience4j:
+  retry:
+    instances:
+      nougatServiceRetry:
+        max-attempts: 3
+        wait-duration: 2s
+        retry-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+          - org.springframework.web.reactive.function.client.WebClientResponseException

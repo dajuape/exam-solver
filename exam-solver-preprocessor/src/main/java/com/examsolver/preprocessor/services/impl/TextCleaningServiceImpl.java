@@ -52,10 +52,28 @@ public class TextCleaningServiceImpl implements TextCleaningService {
         cleaned = cleaned.trim();
 
         //10 Add delimiter before each "Ejercicio Xn"
-        cleaned = cleaned.replaceAll("(?im)^\\s*Ejercicio\\s+[A-Z]\\d", "=== EJERCICIO ===\n$0");
+        cleaned = markExercisesInline(cleaned);
+
+
+
+
 
         return cleaned;
     }
+
+    private String markExercisesInline(String text) {
+        Pattern p = Pattern.compile("(?i)(\\*{0,2}\\s*Ejercicio\\s+[A-Z]\\d\\s*\\*{0,2})");
+        Matcher m = p.matcher(text);
+        StringBuffer sb = new StringBuffer();
+
+        while (m.find()) {
+            String match = m.group(1).trim();
+            m.appendReplacement(sb, "=== EJERCICIO ===\n" + match);
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
 
     /**
      * Removes lines that are short and repeated more than once in the text.

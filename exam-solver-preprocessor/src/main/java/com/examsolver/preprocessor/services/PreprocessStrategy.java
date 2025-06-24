@@ -6,11 +6,10 @@ import com.examsolver.shared.dtos.response.PreprocessResponseDTO;
 public interface PreprocessStrategy {
 
     /**
-     * Defines a strategy to preprocess an exam file (PDF or image).
-     * Extracts text using the appropriate method (e.g., PDFBox or OCR).
+     * Extracts text from a file (PDF, image, etc.).
      *
-     * @param requestDTO the exam file and metadata.
-     * @return result with extracted text and fallback info if needed.
+     * @param requestDTO the request with base64 and metadata.
+     * @return raw extracted text.
      */
-    PreprocessResponseDTO preprocess(PreprocessRequestDTO requestDTO);
+    String extractText(PreprocessRequestDTO requestDTO);
 }

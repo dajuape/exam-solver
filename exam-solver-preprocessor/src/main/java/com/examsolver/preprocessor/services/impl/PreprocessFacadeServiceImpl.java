@@ -21,20 +21,16 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
     private final LanguageDetectionService languageDetectionService;
     private final PreprocessorProperties preprocessorProperties;
     private final ExerciseSplitterService exerciseSplitterService;
+    private final ScientificDetectorService scientificDetectorService;
+    private final NougatClientService nougatClientService;
 
     @Override
     public PreprocessResponseDTO process(PreprocessRequestDTO request) {
         // 1. Select and execute strategy (PDF/OCR)
         final PreprocessStrategy strategy = strategyResolver.resolve(request.getFileType());
-        final PreprocessResponseDTO response = strategy.preprocess(request);
-
-        if (response.isFallbackRequired()) {
-            log.debug("Fallback is required in preprocessing due to: {}", response.getFallbackReason());
-            return response;
-        }
-
-        final String cleaned = textCleaningService.clean(response.getExtractedText());
-        response.setExtractedText(cleaned);
+        String rawText = strategy.extractText(request);
+        
+        final String cleaned = textCleaningService.clean(getExtractedText(request, rawText));
 
         final String language = languageDetectionService.detectLanguage(cleaned);
 
@@ -42,7 +38,25 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
 
         final List<String> exercises = exerciseSplitterService.split(cleaned, delimiter);
 
-        return response;
+        return PreprocessResponseDTO.builder()
+                .success(true)
+                .extractedText(exercises)
+                .fallbackRequired(false)
+                .build();
+    }
+
+    private String getExtractedText(PreprocessRequestDTO request, String rawText) {
+        if (scientificDetectorService.isScientific(rawText)) {
+            log.info("Document appears to be scientific. Using Nougat OCR for reprocessing.");
+            try {
+                return nougatClientService.convertPdfToLatex(request.getDecodedFileBytes(), request.getFileName());
+
+            } catch (Exception e) {
+                log.warn("Nougat OCR fallback failed, keeping original text. Reason: {}", e.getMessage());
+                throw new RuntimeException();
+            }
+        }
+        return rawText;
     }
 
 }
