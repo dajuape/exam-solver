@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/preprocess")
 @AllArgsConstructor
@@ -19,7 +21,7 @@ public class PreprocessController {
     private final PreprocessFacadeService preprocessFacadeService;
 
     @PostMapping
-    public ResponseEntity<PreprocessResponseDTO> handle(@Valid @RequestBody PreprocessRequestDTO request) {
+    public ResponseEntity<PreprocessResponseDTO> handle(@Valid @RequestBody PreprocessRequestDTO request) throws IOException {
 
 
         final PreprocessResponseDTO response = preprocessFacadeService.process(request);

@@ -3,6 +3,8 @@ package com.examsolver.preprocessor.services;
 import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
 import com.examsolver.shared.dtos.response.PreprocessResponseDTO;
 
+import java.io.IOException;
+
 public interface PreprocessFacadeService {
 
     /**
@@ -11,5 +13,5 @@ public interface PreprocessFacadeService {
      * @param request DTO with input file and metadata.
      * @return PreprocessResponseDTO with the processed and cleaned content.
      */
-    PreprocessResponseDTO process(PreprocessRequestDTO request);
+    PreprocessResponseDTO process(PreprocessRequestDTO request) throws IOException;
 }

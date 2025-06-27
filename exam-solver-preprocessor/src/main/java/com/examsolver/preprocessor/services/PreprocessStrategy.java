@@ -3,6 +3,8 @@ package com.examsolver.preprocessor.services;
 import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
 import com.examsolver.shared.dtos.response.PreprocessResponseDTO;
 
+import java.io.IOException;
+
 public interface PreprocessStrategy {
 
     /**
@@ -11,5 +13,5 @@ public interface PreprocessStrategy {
      * @param requestDTO the request with base64 and metadata.
      * @return raw extracted text.
      */
-    String extractText(PreprocessRequestDTO requestDTO);
+    String extractText(PreprocessRequestDTO requestDTO) throws IOException;
 }

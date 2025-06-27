@@ -26,3 +26,10 @@ resilience4j:
         retry-exceptions:
           - org.springframework.web.reactive.function.client.WebClientRequestException
           - org.springframework.web.reactive.function.client.WebClientResponseException
+
+ocr:
+  tessdata-path: /usr/share/tesseract-ocr/5/tessdata
+
+logging:
+  level:
+    com.examsolver: DEBUG
