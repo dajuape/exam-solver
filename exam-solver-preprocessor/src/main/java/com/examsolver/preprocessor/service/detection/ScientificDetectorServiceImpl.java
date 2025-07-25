@@ -6,9 +6,23 @@ import org.springframework.stereotype.Service;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Implementation of {@link ScientificDetectorService} that uses regex-based pattern
+ * matching to detect mathematical or scientific expressions in the input text.
+ *
+ * <p>The detection includes elements like:
+ * <ul>
+ *   <li>LaTeX structures (e.g., \frac{}, \begin{equation})</li>
+ *   <li>Mathematical symbols and functions (∫, f(x), lim x→...)</li>
+ *   <li>Algebraic expressions (e.g., 3x, x = 5, x^2)</li>
+ * </ul>
+ *
+ * <p>If a minimum number of matches is found, the text is considered scientific.</p>
+ */
 @Service
 @Slf4j
 public class ScientificDetectorServiceImpl implements ScientificDetectorService {
+
 
     private static final Pattern MATH_PATTERN = Pattern.compile(
             "(∫|" +
@@ -26,7 +40,7 @@ public class ScientificDetectorServiceImpl implements ScientificDetectorService 
 
     @Override
     public boolean isScientific(String text) {
-        Matcher matcher = MATH_PATTERN.matcher(text);
+        final Matcher matcher = MATH_PATTERN.matcher(text);
         int count = 0;
         while (matcher.find()) {
             log.debug("Scientific match: {}", matcher.group());

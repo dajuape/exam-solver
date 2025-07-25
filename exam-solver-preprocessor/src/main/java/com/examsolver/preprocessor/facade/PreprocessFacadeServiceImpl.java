@@ -6,11 +6,11 @@ import com.examsolver.preprocessor.service.cleaner.TextCleaningService;
 import com.examsolver.preprocessor.service.detection.LanguageDetectionService;
 import com.examsolver.preprocessor.service.detection.NoiseDetectionService;
 import com.examsolver.preprocessor.service.detection.ScientificDetectorService;
+import com.examsolver.preprocessor.service.fallback.FallbackResult;
 import com.examsolver.preprocessor.service.fallback.NougatClientService;
 import com.examsolver.preprocessor.service.splitting.ExerciseSplitterService;
-import com.examsolver.preprocessor.service.strategy.PreprocessStrategyResolver;
-import com.examsolver.preprocessor.service.fallback.FallbackResult;
 import com.examsolver.preprocessor.service.strategy.PreprocessStrategy;
+import com.examsolver.preprocessor.service.strategy.PreprocessStrategyResolver;
 import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
 import com.examsolver.shared.dtos.response.PreprocessResponseDTO;
 import com.examsolver.shared.enums.FileType;
@@ -78,6 +78,17 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
     }
 
 
+    /**
+     * Applies scientific fallback logic if the input text appears to contain scientific/mathematical content.
+     * <p>
+     * If such content is detected, it delegates to the Nougat service to reprocess the file into LaTeX format.
+     * Otherwise, the original extracted text is used.
+     *
+     * @param request the original preprocessing request, used to re-extract bytes if needed
+     * @param rawText the initially extracted text to analyze for scientific content
+     * @return a {@link FallbackResult} containing the text to use (original or LaTeX) and a flag indicating if fallback was used
+     * @throws RuntimeException if Nougat processing fails unexpectedly
+     */
     private FallbackResult applyScientificFallbackIfNeeded(PreprocessRequestDTO request, String rawText) {
         if (scientificDetectorService.isScientific(rawText)) {
             log.info("Document appears to be scientific. Using Nougat OCR for reprocessing.");
@@ -86,6 +97,7 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
                 return new FallbackResult(latexText, true);
             } catch (Exception e) {
                 log.warn("Nougat OCR fallback failed, keeping original text. Reason: {}", e.getMessage());
+                //TODO use retries and define the use of GPT4-vision
                 throw new RuntimeException();
             }
         }

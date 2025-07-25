@@ -8,10 +8,19 @@ import java.io.IOException;
 public interface PreprocessFacadeService {
 
     /**
-     * Runs the complete preprocessing pipeline for the given request.
+     * Facade interface that defines the contract for executing
+     * the full preprocessing pipeline of an exam input.
      *
-     * @param request DTO with input file and metadata.
-     * @return PreprocessResponseDTO with the processed and cleaned content.
+     * <p>This service orchestrates the appropriate preprocessing strategy
+     * (PDF or OCR), applies cleaning, language detection, splitting, and
+     * any other analysis needed before passing the content to downstream processing.</p>
+     *
+     * @param request DTO containing the base64 input file and metadata
+     *                such as file type and processing mode.
+     * @return a {@link PreprocessResponseDTO} with the extracted text,
+     *         split exercises, and processing metadata (e.g., fallback info).
+     * @throws IOException if file reading or decoding fails.
      */
     PreprocessResponseDTO process(PreprocessRequestDTO request) throws IOException;
+
 }

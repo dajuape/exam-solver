@@ -7,6 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Resolves the appropriate {@link PreprocessStrategy} implementation
+ * based on the detected or declared {@link FileType}.
+ *
+ * <p>Typically, {@link FileType#PDF} maps to {@link PdfPreprocessServiceImpl},
+ * and {@link FileType#IMAGE} to {@link OcrPreprocessServiceImpl}.</p>
+ *
+ * <p>The resolution is based on instance type and is performed once
+ * during bean initialization.</p>
+ */
 @Component
 public class PreprocessStrategyResolver {
 

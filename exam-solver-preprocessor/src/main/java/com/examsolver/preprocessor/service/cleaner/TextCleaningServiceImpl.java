@@ -12,6 +12,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of {@link TextCleaningService} that applies a cleaning pipeline
+ * to raw text from OCR or PDF extraction.
+ *
+ * <p>Cleaning steps include:
+ * <ul>
+ *   <li>Removing tabs and duplicate spaces</li>
+ *   <li>Fixing hyphenated line breaks (e.g., "ecua-\nción")</li>
+ *   <li>Joining lines that are likely part of the same sentence</li>
+ *   <li>Removing page numbers and repeated short lines (headers/footers)</li>
+ *   <li>Trimming and normalizing whitespace</li>
+ *   <li>Injecting a delimiter before exercise blocks (e.g., "Ejercicio A1")</li>
+ * </ul>
+ * </p>
+ */
+
 @Service
 @Slf4j
 public class TextCleaningServiceImpl implements TextCleaningService {
@@ -53,17 +69,23 @@ public class TextCleaningServiceImpl implements TextCleaningService {
         //10 Add delimiter before each "Ejercicio Xn"
         cleaned = markExercisesInline(cleaned);
 
-
-
-
-
         return cleaned;
     }
 
+    /**
+     * Inserts a standard delimiter line ("=== EJERCICIO ===") before each exercise heading.
+     *
+     * <p>Matches variants like "Ejercicio A1", "Ejercicio B2", etc., in any casing
+     * and with optional markdown formatting (asterisks).</p>
+     *
+     * @param text input text
+     * @return text with exercise delimiters inserted
+     */
+
     private String markExercisesInline(String text) {
-        Pattern p = Pattern.compile("(?i)(\\*{0,2}\\s*Ejercicio\\s+[A-Z]\\d\\s*\\*{0,2})");
-        Matcher m = p.matcher(text);
-        StringBuffer sb = new StringBuffer();
+        final Pattern p = Pattern.compile("(?i)(\\*{0,2}\\s*Ejercicio\\s+[A-Z]\\d\\s*\\*{0,2})");
+        final Matcher m = p.matcher(text);
+        final StringBuffer sb = new StringBuffer();
 
         while (m.find()) {
             String match = m.group(1).trim();
@@ -82,17 +104,20 @@ public class TextCleaningServiceImpl implements TextCleaningService {
      * @return Cleaned text.
      */
     private String removeRepeatedShortLines(String text) {
-        String[] lines = text.split("\\n");
-        Map<String, Integer> counter = new HashMap<>();
+        final String[] lines = text.split("\\n");
+        final Map<String, Integer> counter = new HashMap<>();
+
         for (String line : lines) {
             String trimmed = line.trim();
             if (trimmed.length() <= MAX_LINE_LENGTH && !trimmed.isEmpty())
                 counter.put(trimmed, counter.getOrDefault(trimmed, 0) + 1);
         }
-        Set<String> repeated = counter.entrySet().stream()
+
+       final Set<String> repeated = counter.entrySet().stream()
                 .filter(e -> e.getValue() > 1)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
+
         return Arrays.stream(lines)
                 .filter(line -> !repeated.contains(line.trim()))
                 .collect(Collectors.joining("\n"));

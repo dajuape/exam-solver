@@ -11,6 +11,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
 
+/**
+ * Strategy implementation for processing digital PDFs using Apache PDFBox.
+ *
+ * <p>This strategy assumes the PDF is not scanned and contains extractable
+ * text. It uses {@link PDFTextStripper} to retrieve the textual content.</p>
+ */
 @Service
 @AllArgsConstructor
 @Slf4j

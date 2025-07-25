@@ -8,6 +8,13 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+/**
+ * Implementation of {@link PdfContentAnalyzerService} that uses Apache PDFBox
+ * to extract text and infer whether a PDF is scanned.
+ *
+ * <p>A scanned PDF typically yields no extractable text via PDFBox,
+ * which is used here as a heuristic to trigger OCR fallback.</p>
+ */
 @Slf4j
 @Service
 public class PdfContentAnalyzerServiceImpl implements PdfContentAnalyzerService {

@@ -18,6 +18,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Strategy implementation for processing scanned PDFs or images using Tesseract OCR.
+ *
+ * <p>The service performs OCR on the input file, initially using English, and
+ * then retries with the detected language if it's different and supported.</p>
+ *
+ * <p>Supports language fallback and uses {@link Tesseract} configured with
+ * language-specific models.</p>
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

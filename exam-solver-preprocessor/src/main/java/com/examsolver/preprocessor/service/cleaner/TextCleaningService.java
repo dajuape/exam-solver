@@ -3,10 +3,13 @@ package com.examsolver.preprocessor.service.cleaner;
 public interface TextCleaningService {
 
     /**
-     * Cleans and normalizes the given text.
+     * Cleans and normalizes raw text extracted from scanned or digital exam files.
      *
-     * @param input Raw text to clean.
-     * @return Cleaned text.
+     * <p>This includes removal of OCR noise, page artifacts, repeated headers/footers,
+     * line joining, and preparation for exercise splitting.</p>
+     *
+     * @param input raw extracted text
+     * @return cleaned and normalized text suitable for downstream processing
      */
     String clean(String input);
 }

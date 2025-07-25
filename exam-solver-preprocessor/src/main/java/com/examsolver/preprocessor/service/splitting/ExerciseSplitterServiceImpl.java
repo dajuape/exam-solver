@@ -7,6 +7,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of {@link ExerciseSplitterService} that splits text based on a fixed delimiter.
+ *
+ * <p>The delimiter is expected to be language-specific (e.g., "=== EXERCISE ===") and
+ * should have been injected during text cleaning or preprocessing.</p>
+ *
+ * <p>Empty segments and null inputs are safely handled and filtered out.</p>
+ */
 @Service
 @Slf4j
 public class ExerciseSplitterServiceImpl implements ExerciseSplitterService {

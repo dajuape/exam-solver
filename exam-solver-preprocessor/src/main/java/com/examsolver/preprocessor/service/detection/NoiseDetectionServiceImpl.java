@@ -4,6 +4,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+/**
+ * Implementation of {@link NoiseDetectionService} that uses heuristics
+ * to detect OCR noise in extracted text.
+ *
+ * <p>Checks include:
+ * <ul>
+ *   <li>Ratio of non-printable or garbage characters (e.g. symbols)</li>
+ *   <li>Ratio of malformed words with excessive non-alphabetic characters</li>
+ * </ul>
+ *
+ * <p>If either metric exceeds a defined threshold, the text is considered too noisy.</p>
+ */
 @Service
 public class NoiseDetectionServiceImpl implements NoiseDetectionService {
 
