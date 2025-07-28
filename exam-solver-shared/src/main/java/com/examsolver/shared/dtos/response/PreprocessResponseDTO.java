@@ -17,4 +17,5 @@ public class PreprocessResponseDTO {
     private List<String> extractedText;
     private boolean fallbackRequired;
     private FallbackReasonCode fallbackCode;
+    private String detectedLanguage;
 }
