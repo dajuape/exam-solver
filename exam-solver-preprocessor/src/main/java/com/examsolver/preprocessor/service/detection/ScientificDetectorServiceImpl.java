@@ -42,6 +42,7 @@ public class ScientificDetectorServiceImpl implements ScientificDetectorService 
 
     @Override
     public boolean isScientific(String text) {
+        if (text == null || text.trim().isEmpty()) return false;
         final Matcher matcher = MATH_PATTERN.matcher(text);
         int count = 0;
         while (matcher.find()) {
@@ -51,4 +52,5 @@ public class ScientificDetectorServiceImpl implements ScientificDetectorService 
         }
         return false;
     }
+
 }
