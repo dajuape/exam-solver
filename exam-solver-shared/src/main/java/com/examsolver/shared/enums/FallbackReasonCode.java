@@ -1,0 +1,11 @@
+package com.examsolver.shared.enums;
+
+public enum FallbackReasonCode {
+
+    OCR_PDF_EXTRACTION_FAILED,
+    OCR_IMAGE_EXTRACTION_FAILED,
+    OCR_IMAGE_DECODE_FAILED,
+    PDFBOX_EXTRACTION_FAILED,
+    NOUGAT_UNAVAILABLE,
+    TEXT_TOO_NOISY
+}

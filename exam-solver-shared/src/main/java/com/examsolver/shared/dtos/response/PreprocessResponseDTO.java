@@ -1,5 +1,6 @@
 package com.examsolver.shared.dtos.response;
 
+import com.examsolver.shared.enums.FallbackReasonCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,11 +15,6 @@ import java.util.List;
 public class PreprocessResponseDTO {
     private boolean success;
     private List<String> extractedText;
-
     private boolean fallbackRequired;
-    private String fallbackReason;
-
-    private boolean ocrWasNoisy;           // OCR had too much noise (e.g. garbled text)
-    private String detectedLanguage;       // Language detected after text cleaning
-    private boolean usedScientificFallback; // True if Nougat was used for scientific OCR
+    private FallbackReasonCode fallbackCode;
 }
