@@ -43,7 +43,7 @@ public class TextCleaningServiceImpl implements TextCleaningService {
         String cleaned = input;
 
         // 1. Remove tab characters
-        cleaned = cleaned.replace("\t", "");
+        cleaned = cleaned.replace("\t", " ");
 
         // 2. Join words split with hyphen and newline (e.g., "ecua-\nción" => "ecuación")
         cleaned = cleaned.replaceAll("-\\n", "");
@@ -86,6 +86,7 @@ public class TextCleaningServiceImpl implements TextCleaningService {
      */
 
     private String markExercisesInline(String text) {
+        //TODO fix based on the detected language
         final Pattern p = Pattern.compile("(?i)(\\*{0,2}\\s*Ejercicio\\s+[A-Z]\\d\\s*\\*{0,2})");
         final Matcher m = p.matcher(text);
         final StringBuffer sb = new StringBuffer();
