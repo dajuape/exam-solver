@@ -26,7 +26,9 @@ public class NoiseDetectionServiceImpl implements NoiseDetectionService {
 
     @Override
     public boolean isTooNoisy(String text) {
-        long nonPrintable = text.chars().filter(c -> c < 32 || c > 126).count();
+        long nonPrintable = text.codePoints()
+                .filter(c -> !Character.isDefined(c) || Character.isISOControl(c))
+                .count();
         long garbageChars = text.chars().filter(c -> "!@#$%^&*_=+[]<>¿¡~".indexOf(c) >= 0).count();
         double noiseRatio = (nonPrintable + garbageChars) / (double) text.length();
 
@@ -34,7 +36,8 @@ public class NoiseDetectionServiceImpl implements NoiseDetectionService {
         long totalWords = words.length;
         long malformedWords = Arrays.stream(words)
                 .filter(w -> w.length() > noiseDetectionProperties.getMalformedWordMinLength() &&
-                        w.replaceAll("[a-zA-ZáéíóúñÁÉÍÓÚÑ]", "").length() > w.length() * noiseDetectionProperties.getMalformedCharRatio())
+                        w.replaceAll("\\p{L}", "")
+                                .length() > w.length() * noiseDetectionProperties.getMalformedCharRatio())
                 .count();
         double malformedRatio = (double) malformedWords / totalWords;
 
