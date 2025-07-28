@@ -12,7 +12,6 @@ public interface PreprocessStrategy {
      *
      * @param requestDTO the input request containing file metadata and content
      * @return raw extracted text (may contain noise)
-     * @throws IOException in case of decoding or parsing errors
      */
-    String extractText(PreprocessRequestDTO requestDTO) throws IOException;
+    String extractText(PreprocessRequestDTO requestDTO);
 }

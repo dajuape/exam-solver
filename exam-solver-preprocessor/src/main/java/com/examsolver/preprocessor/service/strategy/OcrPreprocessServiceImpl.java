@@ -1,6 +1,7 @@
 package com.examsolver.preprocessor.service.strategy;
 
 import com.examsolver.preprocessor.config.OcrProperties;
+import com.examsolver.preprocessor.exception.OcrProcessingException;
 import com.examsolver.preprocessor.service.detection.LanguageDetectionService;
 import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
 import com.examsolver.shared.enums.FileType;
@@ -70,34 +71,37 @@ public class OcrPreprocessServiceImpl implements PreprocessStrategy {
     }
 
     private String doOcrPdf(byte[] bytes, String lang) {
-        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(bytes))) {
-            PDFRenderer renderer = new PDFRenderer(document);
-            Tesseract tesseract = createTesseract(lang);
-            StringBuilder sb = new StringBuilder();
+        try (final PDDocument document = PDDocument.load(new ByteArrayInputStream(bytes))) {
+
+            final PDFRenderer renderer = new PDFRenderer(document);
+            final Tesseract tesseract = createTesseract(lang);
+            final StringBuilder sb = new StringBuilder();
+
             for (int i = 0; i < document.getNumberOfPages(); i++) {
-                BufferedImage image = renderer.renderImageWithDPI(i, 300);
+                final BufferedImage image = renderer.renderImageWithDPI(i, 300);
                 sb.append(tesseract.doOCR(image)).append("\n");
             }
+
             return sb.toString();
         } catch (IOException | TesseractException e) {
-            throw new RuntimeException("OCR failed for scanned PDF with language '" + lang + "': " + e.getMessage(), e);
+            throw new OcrProcessingException("OCR failed for scanned PDF with language '" + lang + "': " + e.getMessage(), e);
         }
     }
 
     private String doOcrImage(byte[] bytes, String lang) {
         try {
-            BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
+            final BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
             if (image == null) {
-                throw new IOException("Failed to decode image");
+                throw new OcrProcessingException("Failed to decode image for OCR", null);
             }
             return createTesseract(lang).doOCR(image);
         } catch (IOException | TesseractException e) {
-            throw new RuntimeException("OCR failed for image with language '" + lang + "': " + e.getMessage(), e);
+            throw new OcrProcessingException("OCR failed for image with language '" + lang + "'", e);
         }
     }
 
     private Tesseract createTesseract(String lang) {
-        Tesseract tesseract = new Tesseract();
+        final Tesseract tesseract = new Tesseract();
         tesseract.setLanguage(lang);
         tesseract.setDatapath(ocrProperties.getTessdataPath());
         return tesseract;

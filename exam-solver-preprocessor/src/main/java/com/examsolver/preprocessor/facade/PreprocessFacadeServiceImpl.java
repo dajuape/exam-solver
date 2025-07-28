@@ -5,14 +5,14 @@ import com.examsolver.preprocessor.service.analysis.PdfContentAnalyzerService;
 import com.examsolver.preprocessor.service.cleaner.TextCleaningService;
 import com.examsolver.preprocessor.service.detection.LanguageDetectionService;
 import com.examsolver.preprocessor.service.detection.NoiseDetectionService;
-import com.examsolver.preprocessor.service.detection.ScientificDetectorService;
+import com.examsolver.preprocessor.service.fallback.FallbackOrchestrationHandler;
 import com.examsolver.preprocessor.service.fallback.FallbackResult;
-import com.examsolver.preprocessor.service.fallback.NougatClientService;
 import com.examsolver.preprocessor.service.splitting.ExerciseSplitterService;
 import com.examsolver.preprocessor.service.strategy.PreprocessStrategy;
 import com.examsolver.preprocessor.service.strategy.PreprocessStrategyResolver;
 import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
 import com.examsolver.shared.dtos.response.PreprocessResponseDTO;
+import com.examsolver.shared.enums.FallbackReasonCode;
 import com.examsolver.shared.enums.FileType;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +33,7 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
     private final LanguageDetectionService languageDetectionService;
     private final PreprocessorProperties preprocessorProperties;
     private final ExerciseSplitterService exerciseSplitterService;
-    private final ScientificDetectorService scientificDetectorService;
-    private final NougatClientService nougatClientService;
+    private final FallbackOrchestrationHandler fallbackOrchestrationHandler;
     private final PdfContentAnalyzerService pdfContentAnalyzerService;
     private final NoiseDetectionService noiseDetectionService;
 
@@ -52,57 +51,36 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
         // Resolve strategy based on effective file type (PDF or scanned image)
         final PreprocessStrategy strategy = strategyResolver.resolve(effectiveFileType);
 
-        // Execute initial OCR/text extraction
-        String rawText = strategy.extractText(request);
+        final FallbackResult result = fallbackOrchestrationHandler.extractWithFallback(request, strategy);
 
-        // Apply fallback if scientific content is detected (may switch to Nougat)
-        FallbackResult result = applyScientificFallbackIfNeeded(request, rawText);
+        // If Nougat fallback failed, skip post-processing and return early
+        if (result.nougatFailed()) {
+            return PreprocessResponseDTO.builder()
+                    .success(true)
+                    .extractedText(null)
+                    .fallbackRequired(true)
+                    .fallbackCode(result.fallbackCode())
+                    .build();
+        }
 
         // Clean and post-process
-        String cleaned = textCleaningService.clean(result.text());
-        String language = languageDetectionService.detectLanguage(cleaned);
+        final String cleaned = textCleaningService.clean(result.text());
+        final String language = languageDetectionService.detectLanguage(cleaned);
         boolean ocrWasNoisy = noiseDetectionService.isTooNoisy(cleaned);
 
         final String delimiter = preprocessorProperties.getExerciseDelimiters()
                 .getOrDefault(language, DEFAUTL_DELIMITER);
         final List<String> exercises = exerciseSplitterService.split(cleaned, delimiter);
 
+        final FallbackReasonCode code = result.fallbackCode();
         return PreprocessResponseDTO.builder()
                 .success(true)
                 .extractedText(exercises)
-                .fallbackRequired(result.usedNougatFallback())
-                .ocrWasNoisy(ocrWasNoisy)
-                .detectedLanguage(language)
-                .usedScientificFallback(result.usedNougatFallback())
+                .fallbackRequired(code != null)
+                .fallbackCode(code)
+                .userConfirmationRequired(code == FallbackReasonCode.EMPTY_EXTRACTION_RESULT)
                 .build();
+
     }
-
-
-    /**
-     * Applies scientific fallback logic if the input text appears to contain scientific/mathematical content.
-     * <p>
-     * If such content is detected, it delegates to the Nougat service to reprocess the file into LaTeX format.
-     * Otherwise, the original extracted text is used.
-     *
-     * @param request the original preprocessing request, used to re-extract bytes if needed
-     * @param rawText the initially extracted text to analyze for scientific content
-     * @return a {@link FallbackResult} containing the text to use (original or LaTeX) and a flag indicating if fallback was used
-     * @throws RuntimeException if Nougat processing fails unexpectedly
-     */
-    private FallbackResult applyScientificFallbackIfNeeded(PreprocessRequestDTO request, String rawText) {
-        if (scientificDetectorService.isScientific(rawText)) {
-            log.info("Document appears to be scientific. Using Nougat OCR for reprocessing.");
-            try {
-                String latexText = nougatClientService.convertPdfToLatex(request.getDecodedFileBytes(), request.getFileName());
-                return new FallbackResult(latexText, true);
-            } catch (Exception e) {
-                log.warn("Nougat OCR fallback failed, keeping original text. Reason: {}", e.getMessage());
-                //TODO use retries and define the use of GPT4-vision
-                throw new RuntimeException();
-            }
-        }
-        return new FallbackResult(rawText, false);
-    }
-
 
 }

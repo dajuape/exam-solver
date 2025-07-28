@@ -1,5 +1,6 @@
 package com.examsolver.preprocessor.service.strategy;
 
+import com.examsolver.preprocessor.exception.PdfExtractionException;
 import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class PdfPreprocessServiceImpl implements PreprocessStrategy {
 
         } catch (IOException e) {
             log.error("Error preprocessing a PDF.", e);
-            throw new RuntimeException("Error preprocessing a PDF", e);
+            throw new PdfExtractionException("PDFBox failed to extract text", e);
         }
     }
 
