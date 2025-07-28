@@ -1,6 +1,7 @@
 package com.examsolver.preprocessor.service.detection;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.regex.Matcher;
@@ -36,7 +37,8 @@ public class ScientificDetectorServiceImpl implements ScientificDetectorService 
     );
 
 
-    private static final int MIN_MATCHES = 3;
+    @Value("${preprocessor.scientific.min-matches}")
+    private int minMatches;
 
     @Override
     public boolean isScientific(String text) {
@@ -45,7 +47,7 @@ public class ScientificDetectorServiceImpl implements ScientificDetectorService 
         while (matcher.find()) {
             log.debug("Scientific match: {}", matcher.group());
             count++;
-            if (count >= MIN_MATCHES) return true;
+            if (count >= minMatches) return true;
         }
         return false;
     }

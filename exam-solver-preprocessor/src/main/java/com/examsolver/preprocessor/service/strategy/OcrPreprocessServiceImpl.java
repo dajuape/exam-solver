@@ -17,7 +17,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Strategy implementation for processing scanned PDFs or images using Tesseract OCR.
@@ -33,13 +32,6 @@ import java.util.Map;
 @Slf4j
 public class OcrPreprocessServiceImpl implements PreprocessStrategy {
 
-    private static final String DEFAULT_LANG = "eng";
-    private static final Map<String, String> LANGUAGE_CODE_MAP = Map.of(
-            "es", "spa",
-            "en", "eng",
-            "fr", "fra",
-            "de", "deu"
-    );
     private final LanguageDetectionService languageDetectionService;
     private final OcrProperties ocrProperties;
 
@@ -48,15 +40,15 @@ public class OcrPreprocessServiceImpl implements PreprocessStrategy {
         final byte[] bytes = requestDTO.getDecodedFileBytes();
 
         String text = requestDTO.getFileType() == FileType.PDF
-                ? doOcrPdf(bytes, DEFAULT_LANG)
-                : doOcrImage(bytes, DEFAULT_LANG);
+                ? doOcrPdf(bytes, ocrProperties.getDefaultLang())
+                : doOcrImage(bytes, ocrProperties.getDefaultLang());
 
 
         final String detectedLang = mapToTesseractLang(languageDetectionService.detectLanguage(text));
 
         log.info("Detected language: {}", detectedLang);
 
-        if (!"unknown".equals(detectedLang) && !DEFAULT_LANG.equals(detectedLang)) {
+        if (!"unknown".equals(detectedLang) && !ocrProperties.getDefaultLang().equals(detectedLang)) {
             try {
                 log.info("Reprocessing OCR with detected language '{}'", detectedLang);
                 text = requestDTO.getFileType() == FileType.PDF
@@ -108,6 +100,6 @@ public class OcrPreprocessServiceImpl implements PreprocessStrategy {
     }
 
     private String mapToTesseractLang(String lang) {
-        return LANGUAGE_CODE_MAP.getOrDefault(lang, lang);
+        return ocrProperties.getLanguageCodeMap().getOrDefault(lang, lang);
     }
 }

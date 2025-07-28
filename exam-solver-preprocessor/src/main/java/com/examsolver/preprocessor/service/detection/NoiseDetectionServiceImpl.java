@@ -1,5 +1,7 @@
 package com.examsolver.preprocessor.service.detection;
 
+import com.examsolver.preprocessor.config.NoiseDetectionProperties;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -17,12 +19,10 @@ import java.util.Arrays;
  * <p>If either metric exceeds a defined threshold, the text is considered too noisy.</p>
  */
 @Service
+@AllArgsConstructor
 public class NoiseDetectionServiceImpl implements NoiseDetectionService {
 
-    private static final double NOISE_RATIO_THRESHOLD = 0.02;
-    private static final double MALFORMED_WORD_RATIO_THRESHOLD = 0.25;
-    private static final double MALFORMED_WORD_MIN_LENGTH = 3;
-    private static final double MALFORMED_CHAR_RATIO = 0.4;
+    private final NoiseDetectionProperties noiseDetectionProperties;
 
     @Override
     public boolean isTooNoisy(String text) {
@@ -33,11 +33,11 @@ public class NoiseDetectionServiceImpl implements NoiseDetectionService {
         String[] words = text.split("\\s+");
         long totalWords = words.length;
         long malformedWords = Arrays.stream(words)
-                .filter(w -> w.length() > MALFORMED_WORD_MIN_LENGTH &&
-                        w.replaceAll("[a-zA-ZáéíóúñÁÉÍÓÚÑ]", "").length() > w.length() * MALFORMED_CHAR_RATIO)
+                .filter(w -> w.length() > noiseDetectionProperties.getMalformedWordMinLength() &&
+                        w.replaceAll("[a-zA-ZáéíóúñÁÉÍÓÚÑ]", "").length() > w.length() * noiseDetectionProperties.getMalformedCharRatio())
                 .count();
         double malformedRatio = (double) malformedWords / totalWords;
 
-        return noiseRatio > NOISE_RATIO_THRESHOLD || malformedRatio > MALFORMED_WORD_RATIO_THRESHOLD;
+        return noiseRatio > noiseDetectionProperties.getNoiseRatioThreshold() || malformedRatio > noiseDetectionProperties.getMalformedWordRatioThreshold();
     }
 }

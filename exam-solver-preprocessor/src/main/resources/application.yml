@@ -11,7 +11,23 @@ preprocessor:
     en: "=== EXERCISE ==="
     de: "=== AUFGABE ==="
     fr: "=== EXERCICE ==="
-
+  noise:
+    noise-ratio-threshold: 0.02
+    malformed-word-ratio-threshold: 0.25
+    malformed-word-min-length: 3
+    malformed-char-ratio: 0.4
+  cleaning:
+    max-line-length: 50
+  scientific:
+    min-matches: 3
+  ocr:
+    default-lang: eng
+    language-code-map:
+      es: spa
+      en: eng
+      fr: fra
+      de: deu
+    tessdata-path: /usr/share/tesseract-ocr/5/tessdata
 
 external:
   nougat:
@@ -28,9 +44,6 @@ resilience4j:
           - org.springframework.web.reactive.function.client.WebClientResponseException
         exponential-backoff-multiplier: 2
         max-wait-duration: 10s
-
-ocr:
-  tessdata-path: /usr/share/tesseract-ocr/5/tessdata
 
 logging:
   level:

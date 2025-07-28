@@ -2,6 +2,7 @@ package com.examsolver.preprocessor.service.cleaner;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -32,7 +33,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TextCleaningServiceImpl implements TextCleaningService {
 
-    private final static int MAX_LINE_LENGTH = 50;
+    @Value("${preprocessor.cleaning.max-line-length}")
+    private int maxLineLength;
+
 
     @Override
     public String clean(String input) {
@@ -109,7 +112,7 @@ public class TextCleaningServiceImpl implements TextCleaningService {
 
         for (String line : lines) {
             String trimmed = line.trim();
-            if (trimmed.length() <= MAX_LINE_LENGTH && !trimmed.isEmpty())
+            if (trimmed.length() <= maxLineLength && !trimmed.isEmpty())
                 counter.put(trimmed, counter.getOrDefault(trimmed, 0) + 1);
         }
 
