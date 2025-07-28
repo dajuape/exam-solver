@@ -18,4 +18,5 @@ public class PreprocessResponseDTO {
     private boolean fallbackRequired;
     private FallbackReasonCode fallbackCode;
     private String detectedLanguage;
+    private boolean userConfirmationRequired;
 }
