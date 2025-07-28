@@ -2,6 +2,7 @@ package com.examsolver.preprocessor.service.fallback;
 
 import com.examsolver.preprocessor.service.detection.ScientificDetectorService;
 import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
+import com.examsolver.shared.enums.FallbackReasonCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,7 @@ public class FallbackHandler {
             return FallbackResult.nougat(latex);
         } catch (WebClientRequestException | WebClientResponseException e) {
             log.error("Nougat failed after retries. Type: {} - {}", e.getClass().getSimpleName(), e.getMessage());
-            return FallbackResult.failed(rawText, "Nougat failed: " + extractNougatFailureReason(e));
+            return FallbackResult.failed(rawText, FallbackReasonCode.NOUGAT_UNAVAILABLE);
         }
 
     }
