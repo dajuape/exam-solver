@@ -60,6 +60,7 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
                     .extractedText(null)
                     .fallbackRequired(true)
                     .fallbackCode(result.fallbackCode())
+                    .userConfirmationRequired(result.fallbackCode() == FallbackReasonCode.EMPTY_EXTRACTION_RESULT)
                     .build();
         }
 
