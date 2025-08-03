@@ -3,6 +3,7 @@ package com.examsolver.preprocessor.facade;
 import com.examsolver.preprocessor.config.PreprocessorProperties;
 import com.examsolver.preprocessor.service.analysis.PdfContentAnalyzerService;
 import com.examsolver.preprocessor.service.cleaner.TextCleaningService;
+import com.examsolver.preprocessor.service.delimiter.ExerciseDelimiterService;
 import com.examsolver.preprocessor.service.detection.LanguageDetectionService;
 import com.examsolver.preprocessor.service.detection.NoiseDetectionService;
 import com.examsolver.preprocessor.service.fallback.FallbackOrchestrationHandler;
@@ -34,7 +35,7 @@ class PreprocessFacadeServiceImplTest {
     private FallbackOrchestrationHandler fallbackHandler;
     private PdfContentAnalyzerService pdfAnalyzer;
     private NoiseDetectionService noiseDetectionService;
-
+    private ExerciseDelimiterService exerciseDelimiterService;
     private PreprocessFacadeServiceImpl facade;
 
     @BeforeEach
@@ -47,14 +48,20 @@ class PreprocessFacadeServiceImplTest {
         fallbackHandler = mock(FallbackOrchestrationHandler.class);
         pdfAnalyzer = mock(PdfContentAnalyzerService.class);
         noiseDetectionService = mock(NoiseDetectionService.class);
-
-        properties.setExerciseDelimiters(Map.of("es", "=== EJERCICIO ===", "en", "=== EXERCISE ==="));
+        exerciseDelimiterService = mock(ExerciseDelimiterService.class);
+        properties.setExerciseDelimiters(Map.of(
+                "es", "=== EJERCICIO ===",
+                "en", "=== EXERCISE ===",
+                "fr", "=== EXERCICE ===",
+                "de", "=== AUFGABE ==="
+        ));
 
         facade = new PreprocessFacadeServiceImpl(
                 strategyResolver,
                 cleaningService,
                 languageDetectionService,
                 properties,
+                exerciseDelimiterService,
                 splitterService,
                 fallbackHandler,
                 pdfAnalyzer,
@@ -178,4 +185,74 @@ class PreprocessFacadeServiceImplTest {
         assertEquals(FallbackReasonCode.EMPTY_EXTRACTION_RESULT, response.getFallbackCode());
         assertTrue(response.isUserConfirmationRequired());
     }
+
+    @Test
+    void shouldUseFrenchDelimiterIfLanguageDetectedIsFr() throws Exception {
+        byte[] fileBytes = "dummy".getBytes();
+        String base64 = Base64.getEncoder().encodeToString(fileBytes);
+
+        PreprocessRequestDTO dto = PreprocessRequestDTO.builder()
+                .base64File(base64)
+                .fileType(FileType.PDF)
+                .fileName("exam_fr.pdf")
+                .build();
+
+        when(pdfAnalyzer.isScanned(fileBytes)).thenReturn(false);
+
+        PreprocessStrategy strategy = mock(PreprocessStrategy.class);
+        when(strategyResolver.resolve(FileType.PDF)).thenReturn(strategy);
+
+        when(fallbackHandler.extractWithFallback(eq(dto), any()))
+                .thenReturn(FallbackResult.success("Exercice C3\ncontenu"));
+
+        when(cleaningService.clean(any())).thenReturn("Exercice C3\ncontenu");
+        when(languageDetectionService.detectLanguage(any())).thenReturn("fr");
+        when(exerciseDelimiterService.setDeilimter(any(), eq("=== EXERCICE ===")))
+                .thenReturn("=== EXERCICE ===\nExercice C3\ncontenu");
+        when(noiseDetectionService.isTooNoisy(any())).thenReturn(false);
+        when(splitterService.split(any(), eq("=== EXERCICE ===")))
+                .thenReturn(List.of("Exercice C3\ncontenu"));
+
+        PreprocessResponseDTO response = facade.process(dto);
+
+        assertTrue(response.isSuccess());
+        assertEquals(1, response.getExtractedText().size());
+        assertEquals("Exercice C3\ncontenu", response.getExtractedText().get(0));
+    }
+
+
+    @Test
+    void shouldUseGermanDelimiterIfLanguageDetectedIsDe() throws Exception {
+        byte[] fileBytes = "dummy".getBytes();
+        String base64 = Base64.getEncoder().encodeToString(fileBytes);
+
+        PreprocessRequestDTO dto = PreprocessRequestDTO.builder()
+                .base64File(base64)
+                .fileType(FileType.PDF)
+                .fileName("exam_de.pdf")
+                .build();
+
+        when(pdfAnalyzer.isScanned(fileBytes)).thenReturn(false);
+
+        PreprocessStrategy strategy = mock(PreprocessStrategy.class);
+        when(strategyResolver.resolve(FileType.PDF)).thenReturn(strategy);
+
+        when(fallbackHandler.extractWithFallback(eq(dto), any()))
+                .thenReturn(FallbackResult.success("Aufgabe D4\ninhalt"));
+
+        when(cleaningService.clean(any())).thenReturn("Aufgabe D4\ninhalt");
+        when(languageDetectionService.detectLanguage(any())).thenReturn("de");
+        when(exerciseDelimiterService.setDeilimter(any(), eq("=== AUFGABE ===")))
+                .thenReturn("=== AUFGABE ===\nAufgabe D4\ninhalt");
+        when(noiseDetectionService.isTooNoisy(any())).thenReturn(false);
+        when(splitterService.split(any(), eq("=== AUFGABE ===")))
+                .thenReturn(List.of("Aufgabe D4\ninhalt"));
+
+        PreprocessResponseDTO response = facade.process(dto);
+
+        assertTrue(response.isSuccess());
+        assertEquals(1, response.getExtractedText().size());
+        assertEquals("Aufgabe D4\ninhalt", response.getExtractedText().get(0));
+    }
+
 }

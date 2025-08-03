@@ -69,34 +69,7 @@ public class TextCleaningServiceImpl implements TextCleaningService {
         // 9. Final trim
         cleaned = cleaned.trim();
 
-        //10 Add delimiter before each "Ejercicio Xn"
-        cleaned = markExercisesInline(cleaned);
-
         return cleaned;
-    }
-
-    /**
-     * Inserts a standard delimiter line ("=== EJERCICIO ===") before each exercise heading.
-     *
-     * <p>Matches variants like "Ejercicio A1", "Ejercicio B2", etc., in any casing
-     * and with optional markdown formatting (asterisks).</p>
-     *
-     * @param text input text
-     * @return text with exercise delimiters inserted
-     */
-
-    private String markExercisesInline(String text) {
-        //TODO fix based on the detected language
-        final Pattern p = Pattern.compile("(?i)(\\*{0,2}\\s*Ejercicio\\s+[A-Z]\\d\\s*\\*{0,2})");
-        final Matcher m = p.matcher(text);
-        final StringBuffer sb = new StringBuffer();
-
-        while (m.find()) {
-            String match = m.group(1).trim();
-            m.appendReplacement(sb, "=== EJERCICIO ===\n" + match);
-        }
-        m.appendTail(sb);
-        return sb.toString();
     }
 
 

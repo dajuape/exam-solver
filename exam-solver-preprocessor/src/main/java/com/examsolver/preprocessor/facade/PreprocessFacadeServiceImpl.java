@@ -3,6 +3,7 @@ package com.examsolver.preprocessor.facade;
 import com.examsolver.preprocessor.config.PreprocessorProperties;
 import com.examsolver.preprocessor.service.analysis.PdfContentAnalyzerService;
 import com.examsolver.preprocessor.service.cleaner.TextCleaningService;
+import com.examsolver.preprocessor.service.delimiter.ExerciseDelimiterService;
 import com.examsolver.preprocessor.service.detection.LanguageDetectionService;
 import com.examsolver.preprocessor.service.detection.NoiseDetectionService;
 import com.examsolver.preprocessor.service.fallback.FallbackOrchestrationHandler;
@@ -32,6 +33,7 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
     private final TextCleaningService textCleaningService;
     private final LanguageDetectionService languageDetectionService;
     private final PreprocessorProperties preprocessorProperties;
+    private final ExerciseDelimiterService exerciseDelimiterService;
     private final ExerciseSplitterService exerciseSplitterService;
     private final FallbackOrchestrationHandler fallbackOrchestrationHandler;
     private final PdfContentAnalyzerService pdfContentAnalyzerService;
@@ -67,13 +69,15 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
         // Clean and post-process
         final String cleaned = textCleaningService.clean(result.text());
         final String language = languageDetectionService.detectLanguage(cleaned);
-        boolean ocrWasNoisy = noiseDetectionService.isTooNoisy(cleaned);
-
         final String delimiter = preprocessorProperties.getExerciseDelimiters()
                 .getOrDefault(language, DEFAUTL_DELIMITER);
+
+        final String delimited = exerciseDelimiterService.setDeilimter(cleaned, delimiter);
+        boolean ocrWasNoisy = noiseDetectionService.isTooNoisy(delimited);
+
         final List<String> exercises = exerciseSplitterService.split(cleaned, delimiter);
 
-        final FallbackReasonCode code = result.fallbackCode();
+        final FallbackReasonCode code = ocrWasNoisy ? FallbackReasonCode.TEXT_TOO_NOISY : result.fallbackCode();
         return PreprocessResponseDTO.builder()
                 .success(true)
                 .extractedText(exercises)
