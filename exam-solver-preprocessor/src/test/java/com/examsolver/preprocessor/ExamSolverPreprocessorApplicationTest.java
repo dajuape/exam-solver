@@ -1,4 +1,5 @@
-package com.examsolver.exam_solver_preprocessor;
+package com.examsolver.preprocessor;
+
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -6,8 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class ExamSolverPreprocessorApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void contextLoads() {
+    }
 }

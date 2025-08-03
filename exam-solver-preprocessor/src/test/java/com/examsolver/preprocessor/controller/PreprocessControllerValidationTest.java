@@ -1,12 +1,14 @@
 package com.examsolver.preprocessor.controller;
 
 
+import com.examsolver.preprocessor.facade.PreprocessFacadeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -15,6 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(PreprocessController.class)
 class PreprocessControllerValidationTest {
+
+    @MockBean
+    private PreprocessFacadeService preprocessFacadeService;
 
     @Autowired
     private MockMvc mockMvc;
