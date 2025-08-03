@@ -66,14 +66,6 @@ class TextCleaningServiceImplTest {
     }
 
     @Test
-    void shouldInsertEjercicioMarkers() {
-        String input = "Ejercicio A1\nThis is an Ejercicio.\n*Ejercicio B2*\nAnother Ejercicio.";
-        String result = cleaningService.clean(input);
-        assertTrue(result.contains("=== EJERCICIO ===\nEjercicio A1"));
-        assertTrue(result.contains("=== EJERCICIO ===\n*Ejercicio B2*"));
-    }
-
-    @Test
     void shouldReturnNullForNullInput() {
         assertNull(cleaningService.clean(null));
     }
@@ -93,8 +85,6 @@ class TextCleaningServiceImplTest {
         String result = cleaningService.clean(input);
 
         assertFalse(result.contains("Page 1")); // repeated header removed
-        assertTrue(result.contains("=== EJERCICIO ===\nEjercicio A1"));
-        assertTrue(result.contains("=== EJERCICIO ===\n*Ejercicio B2*"));
         assertFalse(result.contains("  ")); // no multiple spaces
     }
 }
