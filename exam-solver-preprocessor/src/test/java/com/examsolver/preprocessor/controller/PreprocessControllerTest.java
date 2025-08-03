@@ -1,41 +1,58 @@
 package com.examsolver.preprocessor.controller;
 
+import com.examsolver.preprocessor.facade.PreprocessFacadeService;
 import com.examsolver.shared.dtos.request.PreprocessRequestDTO;
-import com.examsolver.shared.enums.FileType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.examsolver.shared.dtos.response.PreprocessResponseDTO;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.ArgumentMatchers;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import java.io.IOException;
 
-@WebMvcTest(PreprocessController.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+
 class PreprocessControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private PreprocessFacadeService preprocessFacadeService;
+    private PreprocessController preprocessController;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @BeforeEach
+    void setUp() {
+        preprocessFacadeService = mock(PreprocessFacadeService.class);
+        preprocessController = new PreprocessController(preprocessFacadeService);
+    }
 
     @Test
-    void shouldReturnMockedPreprocessResponse() throws Exception {
-        PreprocessRequestDTO request = PreprocessRequestDTO.builder()
-                .fileType(FileType.PDF)
-                .base64File("dGVzdA==") // base64 de "test"
-                .fileName("examen.pdf")
-                .build();
+    void testHandle_ReturnsOkResponse() throws IOException {
+        // Given a valid request and a mocked response
+        PreprocessRequestDTO request = new PreprocessRequestDTO(); // Assumes a no-arg constructor or builder
+        PreprocessResponseDTO response = new PreprocessResponseDTO(); // Assumes a no-arg constructor or builder
 
-        mockMvc.perform(post("/preprocess")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.extractedText").value("mocked text"))
-                .andExpect(jsonPath("$.fallbackRequired").value(false))
-                .andExpect(jsonPath("$.fallbackReason").doesNotExist());
+        when(preprocessFacadeService.process(request)).thenReturn(response);
+
+        // When
+        ResponseEntity<PreprocessResponseDTO> entity = preprocessController.handle(request);
+
+        // Then
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
+        assertEquals(response, entity.getBody());
+        verify(preprocessFacadeService, times(1)).process(request);
+    }
+
+    @Test
+    void testHandle_ThrowsIOException() throws IOException {
+        // Given a request that triggers an IOException
+        PreprocessRequestDTO request = new PreprocessRequestDTO();
+
+        when(preprocessFacadeService.process(ArgumentMatchers.any())).thenThrow(new IOException("Test IO error"));
+
+        // When/Then
+        IOException thrown = assertThrows(IOException.class, () -> preprocessController.handle(request));
+        assertEquals("Test IO error", thrown.getMessage());
+        verify(preprocessFacadeService, times(1)).process(request);
     }
 }
