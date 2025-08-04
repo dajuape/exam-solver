@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: exam-solver-openai
+
+openai:
+  api-key: ${OPENAI_API_KEY}
+  default-model: gpt-3.5-turbo
+  fallback-model: gpt-4o
+  vision-model: gpt-4-vision-preview
+  url: https://api.openai.com/v1/chat/completions
+  timeout: 30s
+  text-timeout: 10s
+
+logging:
+  level:
+    com.examsolver.openai: INFO
+    org.springframework.web: WARN
