@@ -68,7 +68,17 @@ Send each exercise → OpenAI (LaTeX-rich prompt)
 
 - **NGINX** serves as reverse proxy and load balancer (multi-instance ready)
 
+## 📌 Design note on GPT-Vision usage
 
+Currently, GPT-Vision is used **only as the last fallback** to directly solve or correct an exam when all other extraction methods fail (PDFBox, Tesseract OCR, Nougat, or noise heuristics).  
+This choice prioritises delivery within a tight timeline, keeping the system functional and coherent while still showcasing advanced AI integration.
+
+An **evolutionary design** (planned but not implemented yet) would separate the vision flow into:
+1. Extracting text with GPT-Vision (`/vision/extract`), returning `{language, extractedText, confidence}`
+2. Sending the extracted text to the preprocessor for cleaning and segmentation
+3. Reusing the standard text processing pipeline for solving/correcting exercises
+
+This approach would improve auditability, allow quality thresholds, and keep outputs more consistent. However, it involves additional orchestration steps and was deferred in order to prioritise the completion of the current stable version.
 
 ## 💻 Tech Stack
 
