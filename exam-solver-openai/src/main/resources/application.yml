@@ -4,12 +4,16 @@ spring:
 
 openai:
   api-key: ${OPENAI_API_KEY}
-  default-model: gpt-3.5-turbo
-  fallback-model: gpt-4o
-  vision-model: gpt-4-vision-preview
   url: https://api.openai.com/v1/chat/completions
-  timeout: 30s
-  text-timeout: 10s
+  model:
+    text: gpt-4o-mini           # antes: default-model
+    vision: gpt-4o-mini-vision  # antes: vision-model
+    fallback: gpt-4o            # antes: fallback-model
+  timeout:
+    connect: 5s
+    read: 30s
+    text: 10s
+  max-retries: 2
 
 logging:
   level:
