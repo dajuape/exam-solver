@@ -1,5 +1,6 @@
 package com.examsolver.shared.dtos.request;
 
+import com.examsolver.shared.enums.ExamMode;
 import com.examsolver.shared.enums.FileType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,6 +16,12 @@ import java.util.Base64;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PreprocessRequestDTO {
+
+    @NotNull
+    private String examId;
+
+    @NotNull
+    private ExamMode mode;
 
     @NotNull
     private FileType fileType;

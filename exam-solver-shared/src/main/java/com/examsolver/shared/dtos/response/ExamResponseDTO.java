@@ -2,6 +2,7 @@ package com.examsolver.shared.dtos.response;
 
 import com.examsolver.shared.enums.ExamMode;
 import com.examsolver.shared.enums.ExamStatus;
+import com.examsolver.shared.enums.FallbackReasonCode;
 import com.examsolver.shared.enums.FileType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class ExamResponseDTO {
     private ExamMode mode;
     private FileType fileType;
     private String fileName;
-    private String result;          // Null it's not been processed
-    private boolean fallbackUsed;   // True if GTP-vision was used
-    private String fallbackReason;  // Only if fallbackUsed = true
+    private String result;
+    private boolean fallbackUsed;
+    private FallbackReasonCode fallbackReason; 
 }
