@@ -1,8 +1,9 @@
 package com.examsolver.openai.controller;
 
 import com.examsolver.openai.dto.client.OpenAiRequest;
-import com.examsolver.openai.dto.service.OpenAiProcessResponseDTO;
+
 import com.examsolver.openai.service.processing.OpenAiService;
+import com.examsolver.shared.dtos.response.OpenAiProcessResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
