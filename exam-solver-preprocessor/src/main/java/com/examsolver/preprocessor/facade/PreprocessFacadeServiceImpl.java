@@ -59,6 +59,7 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
         if (result.nougatFailed()) {
             return PreprocessResponseDTO.builder()
                     .success(true)
+                    .exercises(null)
                     .extractedText(null)
                     .fallbackRequired(true)
                     .fallbackCode(result.fallbackCode())
@@ -80,7 +81,8 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
         final FallbackReasonCode code = ocrWasNoisy ? FallbackReasonCode.TEXT_TOO_NOISY : result.fallbackCode();
         return PreprocessResponseDTO.builder()
                 .success(true)
-                .extractedText(exercises)
+                .exercises(exercises)
+                .extractedText(cleaned)
                 .fallbackRequired(code != null)
                 .fallbackCode(code)
                 .userConfirmationRequired(code == FallbackReasonCode.EMPTY_EXTRACTION_RESULT)

@@ -97,7 +97,7 @@ class PreprocessFacadeServiceImplTest {
         PreprocessResponseDTO response = facade.process(dto);
 
         assertTrue(response.isSuccess());
-        assertEquals(1, response.getExtractedText().size());
+        assertEquals(1, response.getExercises().size());
         assertFalse(response.isFallbackRequired());
     }
 
@@ -123,7 +123,7 @@ class PreprocessFacadeServiceImplTest {
         PreprocessResponseDTO response = facade.process(dto);
 
         assertTrue(response.isSuccess());
-        assertNull(response.getExtractedText());
+        assertNull(response.getExercises());
         assertTrue(response.isFallbackRequired());
         assertEquals(FallbackReasonCode.NOUGAT_UNAVAILABLE, response.getFallbackCode());
     }
@@ -156,7 +156,7 @@ class PreprocessFacadeServiceImplTest {
         PreprocessResponseDTO response = facade.process(dto);
 
         assertTrue(response.isSuccess());
-        assertEquals(1, response.getExtractedText().size());
+        assertEquals(1, response.getExercises().size());
     }
 
     @Test
@@ -216,8 +216,8 @@ class PreprocessFacadeServiceImplTest {
         PreprocessResponseDTO response = facade.process(dto);
 
         assertTrue(response.isSuccess());
-        assertEquals(1, response.getExtractedText().size());
-        assertEquals("Exercice C3\ncontenu", response.getExtractedText().get(0));
+        assertEquals(1, response.getExercises().size());
+        assertEquals("Exercice C3\ncontenu", response.getExercises().get(0));
     }
 
 
@@ -251,8 +251,8 @@ class PreprocessFacadeServiceImplTest {
         PreprocessResponseDTO response = facade.process(dto);
 
         assertTrue(response.isSuccess());
-        assertEquals(1, response.getExtractedText().size());
-        assertEquals("Aufgabe D4\ninhalt", response.getExtractedText().get(0));
+        assertEquals(1, response.getExercises().size());
+        assertEquals("Aufgabe D4\ninhalt", response.getExercises().get(0));
     }
 
 }
