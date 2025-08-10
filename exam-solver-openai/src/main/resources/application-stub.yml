@@ -1,0 +1,13 @@
+openai:
+  api-key: dummy
+  url: http://localhost/stub
+  model:
+    text: stub-text
+    vision: stub-vision
+    fallback: stub-fallback
+  timeout:
+    connect: 100ms
+    read: 200ms
+    text: 100ms
+  max-retries: 0
+  max-concurrent: 1
