@@ -1,8 +1,7 @@
 package com.examsolver.openai.controller;
 
-import com.examsolver.openai.dto.client.OpenAiRequest;
-
 import com.examsolver.openai.service.processing.OpenAiService;
+import com.examsolver.shared.dtos.request.OpenAIRequestDTO;
 import com.examsolver.shared.dtos.response.OpenAiProcessResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,7 @@ public class OpenAiController {
 
     @PostMapping("/process")
     public ResponseEntity<OpenAiProcessResponseDTO> processExam(
-            @RequestBody @Valid OpenAiRequest request) {
+            @RequestBody @Valid OpenAIRequestDTO request) {
 
         return ResponseEntity.ok(openAiService.processExam(request));
     }

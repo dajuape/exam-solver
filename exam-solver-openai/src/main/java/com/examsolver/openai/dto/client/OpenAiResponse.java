@@ -14,4 +14,15 @@ import java.util.List;
 public class OpenAiResponse {
     private String id;
     private List<Choice> choices;
+    private Usage usage;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Usage {
+        private Integer prompt_tokens;
+        private Integer completion_tokens;
+        private Integer total_tokens;
+    }
 }
