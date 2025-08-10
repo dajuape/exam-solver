@@ -14,6 +14,10 @@ openai:
     read: 30s
     text: 10s
   max-retries: 2
+  max-concurrent: 4
+  retry:
+    initial-delay: 300ms
+    max-delay: 3s
 
 logging:
   level:
