@@ -77,7 +77,7 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
         final String delimited = exerciseDelimiterService.setDeilimter(cleaned, delimiter);
         boolean ocrWasNoisy = noiseDetectionService.isTooNoisy(delimited);
 
-        final List<String> exercises = exerciseSplitterService.split(cleaned, delimiter);
+        final List<String> exercises = exerciseSplitterService.split(delimited, delimiter);
 
         final FallbackReasonCode code = ocrWasNoisy ? FallbackReasonCode.TEXT_TOO_NOISY : result.fallbackCode();
         return PreprocessResponseDTO.builder()
