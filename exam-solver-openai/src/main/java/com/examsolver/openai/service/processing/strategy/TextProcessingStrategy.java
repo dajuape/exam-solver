@@ -33,7 +33,7 @@ public class TextProcessingStrategy implements ProcessingStrategy {
     private final PromptBuilderService promptBuilder;
 
     @Override
-    public OpenAiProcessResponseDTO process(final OpenAIRequestDTO request) {
+    public Mono<OpenAiProcessResponseDTO> process(final OpenAIRequestDTO request) {
         final String model = modelSelector.text();
         final List<Indexed<String>> indexed = indexExercises(request);
 
@@ -41,23 +41,23 @@ public class TextProcessingStrategy implements ProcessingStrategy {
         final AtomicInteger completionSum = new AtomicInteger(0);
         final AtomicInteger totalSum = new AtomicInteger(0);
 
-        final List<Result> orderedResults = Flux.fromIterable(indexed)
+        return Flux.fromIterable(indexed)
                 .flatMap(ix -> processExercise(request, model, ix), props.getMaxConcurrent())
                 .doOnNext(ix -> accumulate(ix.value().usage(), promptSum, completionSum, totalSum))
                 .map(ix -> new Indexed<>(ix.index(), ix.value().result()))
                 .collectList()
                 .map(this::orderAndUnwrap)
-                .block();
-
-        return OpenAiProcessResponseDTO.builder()
-                .examId(UUID.fromString(request.getExamId()))
-                .modelUsed(model)
-                .results(orderedResults)
-                .promptTokens(zeroToNull(promptSum.get()))
-                .completionTokens(zeroToNull(completionSum.get()))
-                .totalTokens(zeroToNull(totalSum.get()))
-                .build();
+                .map(orderedResults -> OpenAiProcessResponseDTO.builder()
+                        .examId(UUID.fromString(request.getExamId()))
+                        .modelUsed(model)
+                        .results(orderedResults)
+                        .promptTokens(zeroToNull(promptSum.get()))
+                        .completionTokens(zeroToNull(completionSum.get()))
+                        .totalTokens(zeroToNull(totalSum.get()))
+                        .build()
+                );
     }
+
 
     /**
      * Assigns each exercise a stable index for later ordered aggregation.

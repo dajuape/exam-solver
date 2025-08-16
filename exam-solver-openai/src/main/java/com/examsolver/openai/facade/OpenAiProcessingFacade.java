@@ -3,6 +3,7 @@ package com.examsolver.openai.facade;
 
 import com.examsolver.shared.dtos.request.OpenAIRequestDTO;
 import com.examsolver.shared.dtos.response.OpenAiProcessResponseDTO;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -18,5 +19,5 @@ public interface OpenAiProcessingFacade {
      * @param request the OpenAI request payload containing mode, language, flags and exercises
      * @return a response per exercise, preserving the input order
      */
-    List<OpenAiProcessResponseDTO> process(OpenAIRequestDTO request);
+    List<Mono<OpenAiProcessResponseDTO>> process(OpenAIRequestDTO request);
 }

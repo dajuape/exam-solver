@@ -6,6 +6,7 @@ import com.examsolver.shared.dtos.request.OpenAIRequestDTO;
 import com.examsolver.shared.dtos.response.OpenAiProcessResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class OpenAiProcessingFacadeImpl implements OpenAiProcessingFacade {
     private final OpenAiService openAiService;
 
     @Override
-    public List<OpenAiProcessResponseDTO> process(final OpenAIRequestDTO request) {
+    public List<Mono<OpenAiProcessResponseDTO>> process(final OpenAIRequestDTO request) {
         validator.validate(request);
         return List.of(openAiService.processExam(request));
     }

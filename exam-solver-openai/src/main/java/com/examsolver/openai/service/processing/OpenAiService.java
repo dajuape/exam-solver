@@ -2,6 +2,7 @@ package com.examsolver.openai.service.processing;
 
 import com.examsolver.shared.dtos.request.OpenAIRequestDTO;
 import com.examsolver.shared.dtos.response.OpenAiProcessResponseDTO;
+import reactor.core.publisher.Mono;
 
 /**
  * Service for processing exams with OpenAI.
@@ -16,5 +17,5 @@ public interface OpenAiService {
      * @param request preprocessed exam data and metadata
      * @return solutions/corrections in original order
      */
-    OpenAiProcessResponseDTO processExam(OpenAIRequestDTO request);
+    Mono<OpenAiProcessResponseDTO> processExam(OpenAIRequestDTO request);
 }

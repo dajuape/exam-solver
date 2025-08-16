@@ -7,6 +7,7 @@ import com.examsolver.shared.dtos.response.OpenAiProcessResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class OpenAiServiceImpl implements OpenAiService {
     private final ProcessingStrategyResolver resolver;
 
     @Override
-    public OpenAiProcessResponseDTO processExam(final OpenAIRequestDTO req) {
+    public Mono<OpenAiProcessResponseDTO> processExam(final OpenAIRequestDTO req) {
         final ProcessingStrategy strategy = resolver.resolve(req);
         return strategy.process(req);
     }
