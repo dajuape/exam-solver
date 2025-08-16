@@ -3,6 +3,7 @@ package com.examsolver.openai.service.processing.strategy;
 import com.examsolver.openai.config.ModelSelector;
 import com.examsolver.openai.config.OpenAiProperties;
 import com.examsolver.openai.service.client.OpenAiClient;
+import com.examsolver.openai.service.client.OpenAiClientPort;
 import com.examsolver.openai.service.prompt.PromptBuilderService;
 import com.examsolver.shared.dtos.request.OpenAIRequestDTO;
 import com.examsolver.shared.dtos.response.OpenAiProcessResponseDTO;
@@ -20,7 +21,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class VisionProcessingStrategy implements ProcessingStrategy {
 
-    private final OpenAiClient client;
+    private final OpenAiClientPort client;
     private final OpenAiProperties props;
     private final ModelSelector modelSelector;
     private final PromptBuilderService promptBuilder;

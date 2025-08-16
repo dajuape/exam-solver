@@ -7,7 +7,11 @@ openai:
     fallback: stub-fallback
   timeout:
     connect: 100ms
+    write: 100ms
     read: 200ms
-    text: 100ms
+    text: 500ms
   max-retries: 0
   max-concurrent: 1
+  stub:
+    latency: 150ms
+    error-rate: 0.0

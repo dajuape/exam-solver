@@ -2,15 +2,19 @@ spring:
   application:
     name: exam-solver-openai
 
+server:
+  port: 8081
+
 openai:
   api-key: ${OPENAI_API_KEY}
-  url: https://api.openai.com/v1/chat/completions
+  url: https://api.openai.com/v1
   model:
-    text: gpt-4o-mini           # antes: default-model
-    vision: gpt-4o-mini-vision  # antes: vision-model
-    fallback: gpt-4o            # antes: fallback-model
+    text: gpt-4o-mini
+    vision: gpt-4o-mini-vision
+    fallback: gpt-4o
   timeout:
     connect: 5s
+    write: 3s
     read: 30s
     text: 10s
   max-retries: 2

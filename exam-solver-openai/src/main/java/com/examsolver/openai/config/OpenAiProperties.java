@@ -40,12 +40,15 @@ public class OpenAiProperties {
     @Data
     public static class Timeout {
         @NotNull
-        private Duration connect = Duration.ofSeconds(5);
+        private Duration connect;
         @NotNull
-        private Duration read = Duration.ofSeconds(30);
+        private Duration read;
         @NotNull
-        private Duration text = Duration.ofSeconds(10);
+        private Duration write;
+        @NotNull
+        private Duration text;
     }
+
 
     @Data
     public static class Retry {
