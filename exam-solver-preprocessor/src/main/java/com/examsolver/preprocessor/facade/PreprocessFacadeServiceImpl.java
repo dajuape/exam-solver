@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -58,6 +59,8 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
         // If Nougat fallback failed, skip post-processing and return early
         if (result.nougatFailed()) {
             return PreprocessResponseDTO.builder()
+                    .examId(UUID.fromString(request.getExamId()))
+                    .mode(request.getMode())
                     .success(true)
                     .exercises(null)
                     .extractedText(null)
@@ -79,13 +82,25 @@ public class PreprocessFacadeServiceImpl implements PreprocessFacadeService {
 
         final List<String> exercises = exerciseSplitterService.split(delimited, delimiter);
 
-        final FallbackReasonCode code = ocrWasNoisy ? FallbackReasonCode.TEXT_TOO_NOISY : result.fallbackCode();
+        FallbackReasonCode code = result.fallbackCode();
+
+        if (result.usedNougatFallback()) {
+            code = null;
+        } else if (ocrWasNoisy) {
+            log.warn("OCR noisy, continuing with text pipeline (hint TEXT_TOO_NOISY).");
+            code = FallbackReasonCode.TEXT_TOO_NOISY;
+        }
+
+        boolean fallbackRequired = code != null
+                && code != FallbackReasonCode.TEXT_TOO_NOISY;
         return PreprocessResponseDTO.builder()
+                .examId(UUID.fromString(request.getExamId()))
+                .mode(request.getMode())
                 .success(true)
                 .exercises(exercises)
                 .extractedText(cleaned)
                 .detectedLanguage(language)
-                .fallbackRequired(code != null)
+                .fallbackRequired(fallbackRequired)
                 .fallbackCode(code)
                 .userConfirmationRequired(code == FallbackReasonCode.EMPTY_EXTRACTION_RESULT)
                 .build();
