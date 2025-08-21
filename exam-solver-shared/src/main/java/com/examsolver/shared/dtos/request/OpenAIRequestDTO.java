@@ -1,6 +1,7 @@
 package com.examsolver.shared.dtos.request;
 
 import com.examsolver.shared.enums.ExamMode;
+import com.examsolver.shared.enums.FallbackReasonCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,7 @@ public class OpenAIRequestDTO {
 
     @NotNull
     private Boolean fallbackRequired;
-    private String fallbackCode;
+    private FallbackReasonCode fallbackCode;
 
     private String base64Image;
 }
