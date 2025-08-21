@@ -1,7 +1,5 @@
 package com.examsolver.openai.service.prompt;
 
-// package com.examsolver.openai.service;
-
 import com.examsolver.shared.enums.ExamMode;
 import com.examsolver.shared.enums.FallbackReasonCode;
 import org.springframework.stereotype.Service;
@@ -16,19 +14,25 @@ public class PromptBuilderServiceImpl implements PromptBuilderService {
 
     @Override
     public String buildText(ExamMode mode, String detectedLanguage, String exercise) {
+        return buildText(mode, detectedLanguage, exercise, null);
+    }
+
+    @Override
+    public String buildText(ExamMode mode, String detectedLanguage, String exercise, FallbackReasonCode fallbackCode) {
         if (mode == null) throw new IllegalArgumentException("mode is null");
         if (exercise == null || exercise.isBlank()) throw new IllegalArgumentException("exercise is blank");
 
         final String lang = normalizeLang(detectedLanguage);
         final String action = verbFor(mode, lang);
+        final String extraGuidance = textGuidanceFor(fallbackCode);
 
         return """
                 You are an expert teacher. Work in %s.
                 Task: %s the exam exercise with clear, numbered steps. Use LaTeX where useful.
-                Keep it concise and end with a one-line final result.
+                Keep it concise and end with a one-line final result.%s
                 Exercise:
                 <<<%s>>>
-                """.formatted(lang, action, exercise.strip());
+                """.formatted(lang, action, extraGuidance, exercise.strip());
     }
 
     @Override
@@ -93,5 +97,15 @@ public class PromptBuilderServiceImpl implements PromptBuilderService {
             case NOUGAT_UNAVAILABLE ->
                     "Math-heavy content: transcribe formulas as LaTeX from the image, then proceed step-by-step.";
         };
+    }
+
+    private String textGuidanceFor(FallbackReasonCode code) {
+        if (code == FallbackReasonCode.TEXT_TOO_NOISY) {
+            return """
+                    
+                    Guidance: The extracted text may contain OCR noise. Clarify variables/symbols when ambiguous, \
+                    reconstruct intended statements if needed, and briefly state any assumptions before solving.""";
+        }
+        return "";
     }
 }

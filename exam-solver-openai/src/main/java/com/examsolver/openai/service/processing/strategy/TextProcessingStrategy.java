@@ -9,6 +9,7 @@ import com.examsolver.openai.service.prompt.PromptBuilderService;
 import com.examsolver.shared.dtos.request.OpenAIRequestDTO;
 import com.examsolver.shared.dtos.response.OpenAiProcessResponseDTO;
 import com.examsolver.shared.dtos.response.OpenAiProcessResponseDTO.Result;
+import com.examsolver.shared.enums.FallbackReasonCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -75,7 +76,12 @@ public class TextProcessingStrategy implements ProcessingStrategy {
                                                            final String model,
                                                            final Indexed<String> ix) {
 
-        final String prompt = promptBuilder.buildText(req.getMode(), req.getDetectedLanguage(), ix.value());
+        final FallbackReasonCode code = req.getFallbackCode();
+
+        final String prompt = (code == FallbackReasonCode.TEXT_TOO_NOISY)
+                ? promptBuilder.buildText(req.getMode(), req.getDetectedLanguage(), ix.value(), code)
+                : promptBuilder.buildText(req.getMode(), req.getDetectedLanguage(), ix.value());
+        
         final OpenAiRequest body = buildBody(model, prompt);
         final long t0 = System.nanoTime();
 
